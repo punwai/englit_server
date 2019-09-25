@@ -102,19 +102,43 @@ app.get('/annotateA/:chapterId', function (req, res) {
         res.header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type");
         res.end(JSON.stringify(annores));   
     })
+})
+
+app.post('/annotateA/:chapterId', function (req, res) {
+    annosql = "SELECT * FROM Annotate WHERE ChapterID = " + req.params.chapterId;
+    con.query(annosql, function(err, annores) {
+        res.header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type");
+        res.end(JSON.stringify(annores));   
+    })
 })  
+
+app.get('/annotateA/:chapterId/sentence/:sentenceId', function (req, res) {
+    annosql = "SELECT * FROM Annotate WHERE ChapterID = " + req.params.chapterId + " AND SentenceStart <= " + req.params.sentenceId + " AND SentenceEnd >= " + req.params.sentenceId;
+    console.log(annosql);
+    con.query(annosql, function(err, annores) {
+        console.log(annores);
+        res.header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type");
+        res.end(JSON.stringify(annores));   
+    })
+})
+
+
+app.get('/book', function (req, res) {
+    sql = "SELECT * FROM Book";
+
+    con.query(sql, function(err, result) {
+        res.end(JSON.stringify(result))
+    });
+});
 
 app.get('/book/:bookId', function (req, res) {
     sql = "SELECT * FROM Book WHERE BookID = " + req.params.bookId;
 
     con.query(sql, function(err, result) {
         chapsql = "SELECT * FROM Chapter WHERE BookID = " + req.params.bookId;
-        con.query(chapsql, function(err,result) {
-            test = [];
-            for(var i = 0; i < result.length; i++){
-                res.render('chapt', { title: 'Hey', message: 'Hello there!' })
-            }
-            res.send(test)
+        con.query(chapsql, function(err,chapres) {
+            result["Chapters"] = chapres;
+            res.end(result)
         });
     });
 });
